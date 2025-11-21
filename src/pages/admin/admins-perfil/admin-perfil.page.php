@@ -15,7 +15,7 @@
         
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
-        <link rel="stylesheet" href="../admin-layout.css">
+        <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
