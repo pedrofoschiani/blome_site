@@ -1,0 +1,342 @@
+/* =========================================
+   1. CONTAINER E FILTRO
+   ========================================= */
+.container-prof {
+    padding: 20px;
+    margin: 80px auto 0;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.filter-section {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 25px 40px;
+    border-radius: 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.filter-label {
+    font-weight: 700;
+    color: var(--text-color-dark);
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   2. INPUTS (Estilo Underline)
+   ========================================= */
+.input-group {
+    flex: 1;
+    min-width: 150px;
+    /* AUMENTADO: Espaçamento maior no modal como pedido */
+    margin-bottom: 25px; 
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 10px 5px;
+    font-size: 1rem;
+    line-height: 24px;
+    color: #333;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: "Nanum Gothic", sans-serif;
+    border-radius: 0;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+/* =========================================
+   3. CARROSSEL E COLUNAS (Visual Limpo)
+   ========================================= */
+.calendar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.calendar-wrapper {
+    display: flex;
+    gap: 25px;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    width: 100%;
+    padding: 10px 5px 30px 5px; /* Padding bottom extra para a sombra não cortar */
+    align-items: flex-start;
+}
+
+/* Coluna do Dia */
+.day-column {
+    min-width: 280px;
+    max-width: 280px;
+    background: #fff;
+    border-radius: 35px;
+    /* Sombra mais suave e difusa */
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+    
+    /* CORREÇÃO: Remove borda superior roxa e garante fundo limpo */
+    border-top: none; 
+    overflow: hidden; /* Garante que nada "quadrado" saia das bordas arredondadas */
+}
+
+.day-header {
+    text-align: center;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   4. CARDS DE AULA (Gradiente Lateral)
+   ========================================= */
+.lesson-card {
+    background: #f8f9fc;
+    border-radius: 20px;
+    padding: 20px 20px 20px 25px; /* Padding esquerdo maior para a faixa */
+    position: relative; /* Necessário para o pseudo-elemento */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none; /* Remove bordas antigas */
+    overflow: hidden; /* Garante que o gradiente respeite o border-radius do card */
+}
+
+/* A faixa gradiente na esquerda */
+.lesson-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: var(--primary-color); /* O gradiente global */
+}
+
+.lesson-card:hover {
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(91, 52, 235, 0.15);
+    transform: translateY(-3px);
+}
+
+.lesson-time {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.lesson-subject {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-color-dark);
+    margin-bottom: 4px;
+}
+
+.lesson-prof {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Botão Adicionar no final da coluna */
+.btn-add-lesson {
+    background: #fcfcfc;
+    border: 2px dashed #e0e0e0;
+    border-radius: 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-add-lesson:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(91, 52, 235, 0.1);
+}
+
+/* =========================================
+   5. NAVEGAÇÃO
+   ========================================= */
+.nav-arrow {
+    background: #fff;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 10;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+.nav-arrow:hover {
+    background: var(--primary-color);
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(91, 52, 235, 0.3);
+}
+.nav-prev { left: -25px; }
+.nav-next { right: -25px; }
+.nav-arrow.hidden { display: none; }
+
+/* =========================================
+   6. MODAL (Espaçado e Botões Corrigidos)
+   ========================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; opacity: 1; }
+
+.modal-card {
+    background: #fff;
+    /* AUMENTADO padding vertical para 50px */
+    padding: 50px 40px; 
+    border-radius: 35px;
+    width: 90%;
+    max-width: 500px; /* Um pouco mais largo */
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+}
+.modal-overlay.open .modal-card { transform: translateY(0); }
+
+.modal-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     margin-bottom: 40px; /* Mais espaço abaixo do título */
+}
+
+.modal-header h3 {
+     color: var(--text-color-dark, #333);
+     font-size: 1.6rem;
+     font-weight: 800;
+     margin: 0;
+}
+
+.close-modal {
+     cursor: pointer;
+     font-size: 24px;
+     color: #ccc;
+     transition: 0.2s;
+     margin-top: -5px;
+}
+.close-modal:hover { color: var(--primary-color); }
+
+/* Wrapper dos botões de ação no modal */
+.modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px; /* Espaço acima dos botões */
+}
+
+/* Botão Salvar (Principal) */
+.btn-save-modal {
+    flex: 1; /* Ocupa o espaço restante */
+    background: var(--gradient);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(91, 52, 235, 0.3);
+}
+.btn-save-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(91, 52, 235, 0.4);
+}
+
+/* Botão Deletar (Icone Circular) */
+.btn-icon-delete {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background: #fff0f0; /* Fundo vermelho claro */
+    color: #ff6b6b; /* Icone vermelho */
+    font-size: 1.4rem;
+    display: flex; /* Inicialmente flex, o PHP controla o display:none se for criar */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.1);
+}
+
+.btn-icon-delete:hover {
+    background: #ff4757;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.3);
+}
+
+.form-row {
+    display: flex;
+    gap: 25px;
+}
+
+@media (max-width: 768px) {
+    .filter-section { flex-direction: column; align-items: stretch; }
+    .nav-arrow { width: 40px; height: 40px; font-size: 1.4rem; }
+    .nav-prev { left: -10px; }
+    .nav-next { right: -10px; }
+    .modal-card { padding: 30px 20px; }
+}

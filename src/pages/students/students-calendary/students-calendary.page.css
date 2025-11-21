@@ -1,0 +1,151 @@
+/* =========================================
+   1. CONTAINER
+   ========================================= */
+.container-prof {
+    padding: 20px;
+    margin: 80px auto 0;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* =========================================
+   2. CARROSSEL E COLUNAS
+   ========================================= */
+.calendar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.calendar-wrapper {
+    display: flex;
+    gap: 25px;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    width: 100%;
+    padding: 10px 5px 30px 5px;
+    align-items: flex-start;
+}
+
+/* Coluna do Dia */
+.day-column {
+    min-width: 280px;
+    max-width: 280px;
+    background: #fff;
+    border-radius: 35px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.day-header {
+    text-align: center;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   3. CARDS DE AULA
+   ========================================= */
+.lesson-card {
+    background: #f8f9fc;
+    border-radius: 20px;
+    padding: 20px 20px 20px 25px;
+    position: relative;
+    cursor: default; 
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+
+/* Faixa lateral colorida */
+.lesson-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: var(--primary-color);
+}
+
+.lesson-card:hover {
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(91, 52, 235, 0.15);
+    transform: translateY(-3px);
+}
+
+.lesson-time {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.lesson-subject {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-color-dark);
+    margin-bottom: 4px;
+}
+
+/* Destaque para o nome do Professor */
+.lesson-prof-name {
+    font-size: 0.9rem;
+    color: var(--primary-color); /* Azul para diferenciar */
+    font-weight: 600;
+    background: #eef7ff;
+    padding: 4px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+/* =========================================
+   4. NAVEGAÇÃO
+   ========================================= */
+.nav-arrow {
+    background: #fff;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 10;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+.nav-arrow:hover {
+    background: var(--primary-color);
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(91, 52, 235, 0.3);
+}
+.nav-prev { left: -25px; }
+.nav-next { right: -25px; }
+.nav-arrow.hidden { display: none; }
+
+@media (max-width: 768px) {
+    .nav-arrow { width: 40px; height: 40px; font-size: 1.4rem; }
+    .nav-prev { left: -10px; }
+    .nav-next { right: -10px; }
+}

@@ -1,0 +1,129 @@
+/* --- Top Bar (Header Principal) --- */
+.top-bar {
+    position: fixed;
+    top: 7px; /* !! CORREÇÃO !!: Removido o 'top: 7px' */
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: 70px;
+    padding: 0 30px;    
+    display: flex;
+    align-items: center;
+    z-index: 90;
+    transition: var(--tran-03);
+}
+
+/* Ajuste quando a sidebar estiver fechada */
+.sidebar.close ~ .home .top-bar {
+    left: 0;
+    width: 100%;
+    padding-left: 90px; 
+}
+
+.top-bar__content {
+    display: flex;
+    width: 100%;
+    
+    /* !! CORREÇÃO !! */
+    align-items: center;            /* 'center' é o valor correto, não 'right' */
+    justify-content: flex-end;      /* Empurra tudo para a direita em DESKTOP */
+}
+
+/* --- Lado Esquerdo (Botão Menu Mobile) --- */
+.top-bar .toggle-open-header {
+    display: none; /* Escondido em desktop por padrão */
+    font-size: 30px;
+    color: var(--text-color);
+}
+
+/* --- Lado Direito (Navegação) --- */
+.top-bar .navbar {
+    display: flex; /* Garante que a navbar seja flex */
+}
+
+.top-bar .nav-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 25px;
+}
+
+/* --- Perfil (Avatar + Nome) --- */
+.account-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account-profile .profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.account-profile .profile-name {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+/* --- Botão Sair --- */
+.exit-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color-sidebar);
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: var(--tran-03);
+}
+.exit-button .bx {
+    font-size: 20px;
+}
+.exit-button:hover {
+    background-color: var(--primary-color-light);
+}
+
+
+/* --- Responsividade (Mobile) --- */
+@media (max-width: 768px) {
+    .top-bar {
+        left: 0;
+        width: 100%;
+        padding: 0 20px;
+    }
+
+    .sidebar.close ~ .home .top-bar {
+         padding-left: 20px;
+    }
+
+    /* !! CORREÇÃO !! */
+    /* Em mobile, usamos space-between para separar os ícones */
+    .top-bar__content {
+        justify-content: space-between;
+    }
+
+    /* !! CORREÇÃO !! */
+    /* Mostra o botão de menu (hamburger) DENTRO do header */
+    /* A especificidade (.top-bar) garante que vai sobrescrever a regra de desktop */
+    .top-bar .toggle-open-header {
+        display: block;
+    }
+
+    .account-profile .profile-name {
+        display: none;
+    }
+    
+    .exit-button .exit-text {
+        display: none;
+    }
+    .exit-button:hover {
+        background-color: transparent;
+    }
+}

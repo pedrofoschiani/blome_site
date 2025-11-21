@@ -1,0 +1,29 @@
+:root {
+    /* Cores Principais (Baseado na Logo BLOME) */
+    --primary-color: #5b34eb; /* Roxo principal */
+    --accent-color: #0078ff;  /* Azul do gradiente */
+
+    /* --- Novo Tema Claro (Baseado no seu pedido) --- */
+    
+    /* Fundo do "corpo" da página (fora da sidebar) */
+    --body-color: #f4f7fa;
+    
+    /* Fundo BRANCO da sidebar */
+    --sidebar-color: #ffffff;
+    
+    /* Fundo de "cards" e "containers" */
+    --content-color: #ffffff;
+    
+    /* Cores de Texto */
+    --text-color-dark: #333;           /* Para texto normal no fundo claro */
+    --text-color-sidebar: #5b34eb;     /* Texto ROXO (como pedido) */
+    --text-color-muted: #888;        /* Texto secundário (cinza) */
+    --text-color-light: #ffffff;     /* Texto para usar em fundos roxos/gradiente */
+
+    /* Gradiente (para o header da sidebar) */
+    --gradient: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+
+    /* Tamanhos e Transições */
+    --sidebar-width: 280px;
+    --tran-03: all 0.3s ease;
+}

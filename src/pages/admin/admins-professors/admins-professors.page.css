@@ -1,0 +1,290 @@
+/* =========================================
+   1. CONTAINER E ESTRUTURA
+   ========================================= */
+.container-prof {
+     padding: 20px;
+     margin: 80px auto 0;
+     width: 100%;
+     max-width: 1000px;
+}
+
+/* =========================================
+   2. CARD DO FORMULÁRIO & WRAPPERS
+   ========================================= */
+.card-form,
+.table-list,
+.modal-card,
+.table-responsive-wrapper { /* Adicionado wrapper aqui */
+     background: #fff;
+     border-radius: 35px;
+     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.card-form {
+     padding: 40px;
+     margin-bottom: 40px;
+     transition: transform 0.3s ease;
+}
+
+.card-form h3 {
+     color: var(--text-color-dark, #333);
+     margin: 0 0 30px;
+     font-size: 1.5rem;
+     font-weight: 800;
+     border-left: 4px solid;
+     border-image: linear-gradient(180deg, var(--primary-color), var(--accent-color)) 1;
+     padding-left: 15px;
+}
+
+/* Layout Flex para os inputs */
+.form-row {
+     display: flex;
+     gap: 30px;
+     margin-bottom: 40px;
+     flex-wrap: wrap;
+}
+.input-group { flex: 1; min-width: 250px; }
+
+/* =========================================
+   3. INPUTS (Underline Style)
+   ========================================= */
+.input-group label {
+     display: block;
+     margin-bottom: 10px;
+     font-weight: 700;
+     font-size: 0.85rem;
+     color: #888;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     transition: color 0.3s;
+}
+
+.input-group input {
+     width: 100%;
+     padding: 10px 5px;
+     font-size: 1rem;
+     line-height: 24px;
+     color: #333;
+     background: transparent;
+     border: none;
+     border-bottom: 2px solid #e0e0e0;
+     outline: none;
+     transition: all 0.3s ease;
+     font-family: "Nanum Gothic", sans-serif;
+     border-radius: 0;
+}
+
+.input-group input::placeholder {
+     color: #ccc;
+     font-weight: 400;
+     font-size: 0.95rem;
+}
+
+.input-group input:focus { border-bottom-color: var(--primary-color); }
+.input-group input:focus + label,
+.input-group:focus-within label { color: var(--primary-color); }
+
+/* Botões */
+.btn-add,
+.btn-save-modal {
+     background: var(--gradient);
+     color: #fff;
+     border: none;
+     border-radius: 50px;
+     cursor: pointer;
+     font-weight: 700;
+     display: inline-flex;
+     align-items: center;
+     gap: 10px;
+     transition: all 0.3s ease;
+     font-size: 1rem;
+}
+
+.btn-save-modal p {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.btn-add {
+     padding: 14px 35px;
+     box-shadow: 0 4px 15px rgba(91, 52, 235, 0.3);
+}
+.btn-add:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(91, 52, 235, 0.4); }
+
+.btn-save-modal {
+     width: 100%;
+     padding: 16px;
+     box-shadow: 0 8px 20px rgba(91, 52, 235, 0.4);
+}
+.btn-save-modal:hover {
+     transform: translateY(-3px) scale(1.02);
+     box-shadow: 0 12px 25px rgba(91, 52, 235, 0.5);
+}
+
+/* =========================================
+   4. TABELA DE LISTAGEM E WRAPPER RESPONSIVO
+   ========================================= */
+
+/* [NOVO] Wrapper para permitir scroll horizontal sem quebrar o layout */
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Habilita scroll horizontal interno */
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0;
+    padding-bottom: 5px; /* Espaço para scrollbar não colar */
+}
+
+/* Estilo base da tabela */
+.table-list {
+     width: 100%;
+     border-collapse: separate;
+     border-spacing: 0;
+     overflow: hidden;
+     border-radius: 35px;
+     /* Se estiver dentro do wrapper, removemos sombra/radius da tabela em si para não duplicar */
+}
+
+/* Ajuste quando a tabela está dentro do wrapper */
+.table-responsive-wrapper .table-list {
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+.table-list thead th {
+     padding: 25px;
+     text-align: left;
+     background: #fff;
+     color: #999;
+     font-weight: 700;
+     font-size: 0.85rem;
+     text-transform: uppercase;
+     border-bottom: 2px solid #f0f0f0;
+     white-space: nowrap; /* Evita que o cabeçalho quebre feio */
+}
+
+.table-list td {
+     padding: 20px 25px;
+     text-align: left;
+     vertical-align: middle;
+     border-bottom: 1px solid #f0f0f0;
+     color: #555;
+}
+
+.table-list tbody tr { transition: all 0.2s ease-in-out; border-bottom: 1px solid #f9f9f9; }
+.table-list tbody tr:hover {
+     background-color: #f8faff;
+     /* Removi transform scale aqui pois conflita com overflow hidden/auto em tabelas complexas */
+     z-index: 10;
+     position: relative;
+}
+
+.table-list td img {
+     width: 50px; height: 50px; border-radius: 50%;
+     object-fit: cover;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+     border: 2px solid #fff;
+}
+
+/* [ALTERAÇÃO] Cor do nome alterada de Primary para Dark */
+.table-list td:nth-child(2) {
+     font-size: 1rem; /* Levemente menor para caber melhor */
+     font-weight: 600;
+     color: var(--text-color-dark, #333); /* <-- AQUI MUDOU A COR */
+     min-width: 150px; /* Garante largura mínima para nomes não esmagarem */
+}
+
+.table-list td:last-child { text-align: center; white-space: nowrap; }
+
+/* Botões de Ação */
+.btn-action {
+     width: 40px; height: 40px; border-radius: 12px; border: none;
+     cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+     transition: all 0.2s ease;
+}
+
+.btn-subjects { background: #eef2ff; color: var(--primary-color); }
+.btn-subjects:hover { background: var(--primary-color); color: #fff; transform: scale(1.1); box-shadow: 0 4px 10px rgba(91, 52, 235, 0.3); }
+
+.btn-delete { color: #ff6b6b; background: #fff0f0; }
+.btn-delete:hover { background: #ff4757; color: #fff; transform: scale(1.1); box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); }
+
+/* =========================================
+   5. MODAL
+   ========================================= */
+.modal-overlay {
+     display: none; position: fixed; inset: 0;
+     background: rgba(0,0,0,0.6); z-index: 2000;
+     justify-content: center; align-items: center;
+     opacity: 0; transition: opacity 0.3s ease;
+     backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; opacity: 1; }
+
+.modal-card {
+     padding: 30px 25px; border-radius: 30px; width: 90%; max-width: 450px;
+     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+     transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+     display: flex; flex-direction: column;
+}
+.modal-overlay.open .modal-card { transform: translateY(0); }
+
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+.modal-header h3 { color: var(--text-color-dark, #333); font-size: 1.2rem; font-weight: 800; line-height: 1.4; margin: 0; max-width: 90%; }
+.close-modal { cursor: pointer; font-size: 24px; color: #999; transition: 0.2s; margin-top: -5px; }
+.close-modal:hover { color: var(--text-color-dark); }
+
+.subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 60vh; overflow-y: auto; margin-bottom: 25px; padding: 5px; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
+.subjects-grid::-webkit-scrollbar { width: 6px; }
+.subjects-grid::-webkit-scrollbar-thumb { background-color: #ddd; border-radius: 10px; }
+
+.subject-option { display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8f9fc; border-radius: 15px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; user-select: none; }
+.subject-option:hover { background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transform: translateY(-2px); }
+.subject-option span { font-size: 0.9rem; color: #555; font-weight: 500; line-height: 1.2; }
+
+.custom-checkbox-input { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 5px; display: grid; place-content: center; transition: 0.2s; flex-shrink: 0; background-color: #fff; }
+.custom-checkbox-input::before { content: ""; width: 10px; height: 10px; box-shadow: inset 1em 1em white; transform: scale(0); transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transition: 0.2s; }
+.custom-checkbox-input:checked { background: var(--gradient); border: none; }
+.custom-checkbox-input:checked::before { transform: scale(1); }
+
+.subject-option:has(input:checked) { background: #fff; box-shadow: 0 4px 15px rgba(91, 52, 235, 0.1); border: 1px solid #eee; }
+.subject-option input:checked + span { color: var(--primary-color); font-weight: 700; }
+
+/* =========================================
+   6. LAYOUTS AUXILIARES E RESPONSIVIDADE
+   ========================================= */
+.row-cards {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    align-items: flex-start;
+}
+.row-cards .card-form {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 300px;
+}
+.section-title {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    font-weight: 800;
+    padding-left: 10px;
+    border-left: 4px solid var(--accent-color);
+}
+
+/* --- RESPONSIVIDADE (CELULAR) --- */
+@media (max-width: 850px) {
+    .row-cards { flex-direction: column; }
+    .row-cards .card-form { width: 100%; }
+    
+    /* [NOVO] Ajuste da tabela no mobile para caber mais coisa */
+    .table-list th, .table-list td {
+        padding: 15px 10px; /* Menos padding */
+        font-size: 0.9rem;
+    }
+    .table-list td img {
+        width: 40px; height: 40px; /* Avatar um pouco menor */
+    }
+}

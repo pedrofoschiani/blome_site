@@ -1,0 +1,18 @@
+{
+    "name": "blome/site",
+    "description": "Site do projeto BLOME",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Blome\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Blome\\Tests\\": "tests/"
+        }
+    }
+}

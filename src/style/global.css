@@ -1,0 +1,100 @@
+/* ... Mantenha o reset que já existe no arquivo ... */
+* {
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- Mensagens de Feedback Globais --- */
+.msg-box { 
+    padding: 15px; 
+    border-radius: 30px; 
+    margin-bottom: 25px; 
+    text-align: center; 
+    font-weight: 600; 
+    font-family: "Nanum Gothic", sans-serif;
+    /* Garante que a animação de sumir funcione bem */
+    opacity: 1; 
+}
+
+.msg-success { 
+    background: #d1e7dd; 
+    color: #0f5132; 
+    border: 1px solid #badbcc; 
+}
+
+.msg-error { 
+    background: #f8d7da; 
+    color: #842029; 
+    border: 1px solid #f5c2c7; 
+}
+
+input.valid {
+    border-bottom-color: #2ea44f !important;
+    /* Ícone de check no canto direito */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%232ea44f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+input.invalid {
+    border-bottom-color: #cb2431 !important;
+}
+
+/* Lista de Requisitos de Senha */
+.password-requirements {
+    /* Estado Inicial (Invisível e sem altura) */
+    opacity: 0;
+    visibility: hidden;
+    max-height: 0;
+    margin-top: 0;
+    transform: translateY(-10px);
+    
+    background: #fff;
+    padding: 0; /* Padding zerado para não ocupar espaço */
+    border-radius: 12px;
+    border: 1px solid #eee;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: left;
+    overflow: hidden; /* Essencial para animação de altura */
+    
+    /* A Mágica da Transição */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 100;
+}
+
+/* Classe ativada pelo JS para mostrar */
+.password-requirements.show {
+    opacity: 1;
+    visibility: visible;
+    max-height: 300px; /* Altura máxima suficiente */
+    padding: 15px;
+    margin-top: 10px;
+    transform: translateY(0);
+}
+
+/* --- Variação Flutuante (Para Tabelas/Grids) --- */
+/* Use esta classe APENAS quando precisar flutuar por cima (ex: form de professores) */
+.reqs-floating {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 100%; 
+}
+
+/* Itens da lista */
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #999;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+.req-item:last-child { margin-bottom: 0; }
+.req-item i { font-size: 1.1rem; }
+
+/* Estados */
+.req-item.met { color: #2ea44f; font-weight: 600; }
+.req-item.unmet { color: #999; }
