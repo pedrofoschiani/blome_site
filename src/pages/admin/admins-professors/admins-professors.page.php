@@ -1,16 +1,16 @@
 <?php
-    require_once '../adminSection.php';
-    // Mantendo a lógica original
-    $professors = \supabaseRestRequest($supabaseUrl, $supabaseKey, "professors_info?select=*", "GET", null, $_SESSION['access_token']);
-    $allSubjects = \supabaseRestRequest($supabaseUrl, $supabaseKey, "subjects?select=*", "GET", null, $_SESSION['access_token']);
-    $relations = \supabaseRestRequest($supabaseUrl, $supabaseKey, "professors_subjects?select=professor_id,subject_id", "GET", null, $_SESSION['access_token']);
+    require_once '../adminSection.php'; // Já usa o novo init.php que criamos antes
 
-    $profSubjectsMap = [];
-    if (!empty($relations) && !isset($relations['error'])) {
-        foreach ($relations as $rel) {
-            $profSubjectsMap[$rel['professor_id']][] = $rel['subject_id'];
-        }
-    }
+    $allSubjects = \supabaseRestRequest($supabaseUrl, $supabaseKey, "subjects?select=*", "GET", null, $_SESSION['access_token']);
+
+    $professors = \supabaseRestRequest(
+        $supabaseUrl, 
+        $supabaseKey, 
+        "professors_info?select=*,professors_subjects(subject_id)", 
+        "GET", 
+        null, 
+        $_SESSION['access_token']
+    );
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +51,9 @@
                     <div class="card-form">
                         <h3>Adicionar Novo Professor</h3>
                         <form action="manage-professors.process.php" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="action" value="create">
+
                             <input type="hidden" name="action" value="create">
                             <div class="form-row">
                                 <div class="input-group">
@@ -90,6 +93,9 @@
                     <div class="card-form">
                         <h3>Adicionar Matéria</h3>
                         <form action="manage-professors.process.php" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="action" value="create">
+                            
                             <input type="hidden" name="action" value="create_subject">
                             
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
@@ -127,6 +133,9 @@
                                     
                                     <td style="display: flex; justify-content: center; align-items: center;">
                                         <form action="manage-professors.process.php" method="POST" onsubmit="return confirm('Ao deletar esta matéria, ela será removida de todos os professores que a lecionam. Continuar?');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                            <input type="hidden" name="action" value="create">
+
                                             <input type="hidden" name="action" value="delete_subject">
                                             <input type="hidden" name="subject_id" value="<?php echo $sub['id']; ?>">
                                             <button type="submit" class="btn-action btn-delete" title="Excluir Matéria">
@@ -156,13 +165,18 @@
                             <?php if(!empty($professors) && !isset($professors['error'])): ?>
                                 <?php foreach($professors as $prof): ?>
                                     <?php 
-                                        $mySubjects = $profSubjectsMap[$prof['id']] ?? [];
+                                        $mySubjects = [];
+                                        if (!empty($prof['professors_subjects'])) {
+                                            foreach ($prof['professors_subjects'] as $sub) {
+                                                $mySubjects[] = $sub['subject_id'];
+                                            }
+                                        }
                                         $jsonSubjects = json_encode($mySubjects);
                                     ?>
                                 <tr>
                                     <td>
                                         <img src="<?php echo htmlspecialchars($prof['avatar_url'] ?? 'https://placehold.co/150'); ?>" 
-                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                     </td>
                                     <td><?php echo htmlspecialchars($prof['full_name']); ?></td>
                                     <td style="text-align: center; display: flex; justify-content: center; gap: 10px;">
@@ -172,6 +186,9 @@
                                                 <i class='bx bx-book-bookmark'></i>
                                         </button>
                                         <form action="manage-professors.process.php" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este professor? O acesso dele será revogado.');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                            <input type="hidden" name="action" value="create">
+
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="user_id" value="<?php echo $prof['id']; ?>">
                                             <button type="submit" class="btn-action btn-delete" title="Remover">
@@ -198,6 +215,9 @@
                 </div>
                 
                 <form action="manage-professors.process.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+                    
                     <input type="hidden" name="action" value="update_subjects">
                     <input type="hidden" name="professor_id" id="modalProfId">
                     

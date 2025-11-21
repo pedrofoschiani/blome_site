@@ -128,6 +128,9 @@
                 </div>
                 
                 <form action="manage-calendary.process.php" method="POST" id="scheduleForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+
                     <input type="hidden" name="action" id="formAction" value="create">
                     <input type="hidden" name="class_id" value="<?php echo $selectedClassId; ?>">
                     <input type="hidden" name="schedule_id" id="scheduleId">
@@ -170,6 +173,9 @@
                 </form>
                 
                 <form id="deleteForm" action="manage-calendary.process.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+                    
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="schedule_id" id="deleteId">
                     <input type="hidden" name="class_id" value="<?php echo $selectedClassId; ?>">

@@ -4,6 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Carrega o Autoload e a Conexão (ajuste os caminhos se necessário)
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/connect/connect.php';

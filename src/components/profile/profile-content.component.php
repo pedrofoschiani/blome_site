@@ -34,6 +34,8 @@
         
         <div id="profile-form-container" class="profile-form-wrapper">
             <form class="profile-form" action="../../../components/profile/profile-update.process.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <input type="hidden" name="action" value="create">
                 
                 <div class="form-group">
                     <label for="full_name">Nome Completo</label>

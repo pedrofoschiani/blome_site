@@ -6,6 +6,10 @@ session_start();
 require_once(__DIR__ . '/../../../vendor/autoload.php');
 require_once(__DIR__ . '/../../connect/connect.php');
 
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Erro de segurança: Token inválido ou expirado. Atualize a página e tente novamente.");
+}
+
 // 3. Define quais classes vamos usar
 use Blome\Services\SupabaseClient;
 use Blome\Services\ProfileUpdater;

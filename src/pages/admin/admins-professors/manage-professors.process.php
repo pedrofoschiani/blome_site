@@ -1,114 +1,94 @@
 <?php
 session_start();
-require_once(__DIR__ . '/../../../connect/connect.php');
+require_once __DIR__ . '/../../../init.php';
 
+// Carrega o novo Service
+require_once __DIR__ . '/../../../Services/ProfessorService.php';
+
+// --- SEGURANÇA ---
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Erro de segurança: Token inválido.");
+}
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     die("Acesso negado.");
 }
 
+use Blome\Services\ProfessorService;
+
+$profService = new ProfessorService($client);
 $action = $_POST['action'] ?? '';
+$token = $_SESSION['access_token'];
+$adminId = $_SESSION['user_id'];
 
-// --- PROFESSOR: CRIAR (Mantido) ---
-if ($action === 'create') {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    
-    $adminId = $_SESSION['user_id'];
-    $adminData = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "admins_info?select=institution_id&id=eq.$adminId");
-    $institutionId = $adminData[0]['institution_id'] ?? null;
-    
-    if (!$institutionId) die("Erro: Admin sem instituição.");
-
-    $authResponse = supabaseAdminAuthRequest("users", "POST", ["email" => $email, "password" => $password, "email_confirm" => true]);
-    
-    if (isset($authResponse['id'])) {
-        $newUserId = $authResponse['id'];
-        $insertData = ['id' => $newUserId, 'full_name' => $name, 'institution_id' => $institutionId, 'avatar_url' => 'https://placehold.co/150'];
-        supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_info", "POST", $insertData);
-        header("Location: admins-professors.page.php?success=created");
-    } else {
-        header("Location: admins-professors.page.php?error=create_failed");
-    }
-    exit;
-
-// --- PROFESSOR: DELETAR (Mantido) ---
-} elseif ($action === 'delete') {
-    $userId = $_POST['user_id'];
-    supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_subjects?professor_id=eq.$userId", "DELETE");
-    supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_info?id=eq.$userId", "DELETE");
-    supabaseAdminAuthRequest("users/$userId", "DELETE");
-    header("Location: admins-professors.page.php?success=deleted");
-    exit;
-
-// --- PROFESSOR: ATUALIZAR MATÉRIAS (Mantido) ---
-} elseif ($action === 'update_subjects') {
-    $professorId = $_POST['professor_id'];
-    $selectedSubjects = $_POST['subjects'] ?? [];
-
-    supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_subjects?professor_id=eq.$professorId", "DELETE");
-
-    if (!empty($selectedSubjects)) {
-        $insertBatch = [];
-        foreach ($selectedSubjects as $subId) {
-            $insertBatch[] = ['professor_id' => $professorId, 'subject_id' => (int)$subId];
-        }
-        supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_subjects", "POST", $insertBatch);
-    }
-    header("Location: admins-professors.page.php?success=subjects_updated");
-    exit;
-
-// --- NOVO: CRIAR MATÉRIA ---
-} elseif ($action === 'create_subject') {
-    $subjectName = $_POST['subject_name'];
-
-    if (!empty($subjectName)) {
-        $insertData = ['name' => $subjectName];
+// Função local para tratar criação/deleção de MATÉRIAS (que são simples demais para o Service ainda)
+// Se quiser, pode mover isso para um SubjectService no futuro.
+function handleSubjectAction($action, $supabaseUrl, $supabaseServiceKey) {
+    if ($action === 'create_subject') {
+        $name = $_POST['subject_name'] ?? '';
+        if (empty($name)) header("Location: admins-professors.page.php?error=empty_name");
         
-        $response = supabaseRestRequest(
-            $supabaseUrl, 
-            $supabaseServiceKey, 
-            "subjects", 
-            "POST", 
-            $insertData
+        $res = \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "subjects", "POST", ['name' => $name], null);
+        if (isset($res['error'])) header("Location: admins-professors.page.php?error=subject_create_failed");
+        else header("Location: admins-professors.page.php?success=subject_created");
+        exit;
+
+    } elseif ($action === 'delete_subject') {
+        $id = $_POST['subject_id'];
+        // Deleta vínculos primeiro
+        \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "professors_subjects?subject_id=eq.$id", "DELETE", null, null);
+        // Deleta a matéria
+        $res = \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "subjects?id=eq.$id", "DELETE", null, null);
+        
+        if (isset($res['error'])) header("Location: admins-professors.page.php?error=subject_delete_failed");
+        else header("Location: admins-professors.page.php?success=subject_deleted");
+        exit;
+    }
+}
+
+// Verifica se é ação de Matéria primeiro
+if ($action === 'create_subject' || $action === 'delete_subject') {
+    handleSubjectAction($action, $supabaseUrl, $supabaseServiceKey);
+}
+
+try {
+    // --- AÇÕES DE PROFESSOR (Usando o Service) ---
+
+    if ($action === 'create') {
+        $result = $profService->createProfessor(
+            $_POST['name'], 
+            $_POST['email'], 
+            $_POST['password'], 
+            $adminId, 
+            $token
         );
 
-        if (isset($response['error'])) {
-            header("Location: admins-professors.page.php?error=subject_create_failed");
+        if (isset($result['success'])) {
+            header("Location: admins-professors.page.php?success=created");
         } else {
-            header("Location: admins-professors.page.php?success=subject_created");
+            header("Location: admins-professors.page.php?error=" . ($result['error'] ?? 'create_failed'));
         }
+
+    } elseif ($action === 'delete') {
+        $success = $profService->deleteProfessor($_POST['user_id']);
+        
+        if ($success) header("Location: admins-professors.page.php?success=deleted");
+        else header("Location: admins-professors.page.php?error=delete_failed");
+
+    } elseif ($action === 'update_subjects') {
+        $profId = $_POST['professor_id'];
+        $subjects = $_POST['subjects'] ?? [];
+
+        $success = $profService->updateSubjects($profId, $subjects);
+
+        if ($success) header("Location: admins-professors.page.php?success=subjects_updated");
+        else header("Location: admins-professors.page.php?error=update_failed");
+
     } else {
-        header("Location: admins-professors.page.php?error=empty_name");
+        header("Location: admins-professors.page.php");
     }
-    exit;
 
-// --- AÇÃO: DELETAR MATÉRIA ---
-} elseif ($action === 'delete_subject') {
-    $subjectId = $_POST['subject_id'];
-
-    // 1. Primeiro deleta as relações na tabela pivot (professors_subjects)
-    // Se não fizer isso, o banco pode bloquear a exclusão se houver FK
-    supabaseRestRequest(
-        $supabaseUrl,
-        $supabaseServiceKey,
-        "professors_subjects?subject_id=eq.$subjectId",
-        "DELETE"
-    );
-
-    // 2. Deleta a matéria
-    $response = supabaseRestRequest(
-        $supabaseUrl,
-        $supabaseServiceKey,
-        "subjects?id=eq.$subjectId",
-        "DELETE"
-    );
-
-    if (isset($response['error'])) {
-        header("Location: admins-professors.page.php?error=subject_delete_failed");
-    } else {
-        header("Location: admins-professors.page.php?success=subject_deleted");
-    }
-    exit;
+} catch (Exception $e) {
+    header("Location: admins-professors.page.php?error=exception");
 }
+exit;
 ?>

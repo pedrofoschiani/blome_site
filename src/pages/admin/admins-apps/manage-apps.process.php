@@ -2,6 +2,10 @@
 session_start();
 require_once(__DIR__ . '/../../../connect/connect.php');
 
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Erro de segurança: Token inválido ou expirado. Atualize a página e tente novamente.");
+}
+
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     die("Acesso negado.");
 }
