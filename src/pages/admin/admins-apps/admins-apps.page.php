@@ -30,7 +30,7 @@
         
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
-        <link rel="stylesheet" href="../admin-layout.css">
+        <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
@@ -88,6 +88,9 @@
                                         <td style="font-size: 0.85rem; color: #888;"><?php echo htmlspecialchars($app['package_name']); ?></td>
                                         <td style="display: flex; justify-content: center;">
                                             <form action="manage-apps.process.php" method="POST">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                                <input type="hidden" name="action" value="create">
+
                                                 <input type="hidden" name="action" value="lock_app">
                                                 <input type="hidden" name="app_id" value="<?php echo $app['id']; ?>">
                                                 <button type="submit" class="btn-action btn-delete" title="Bloquear App">
@@ -144,6 +147,9 @@
                                         <td style="font-size: 0.85rem; color: #888;"><?php echo htmlspecialchars($app['package_name']); ?></td>
                                         <td style="display: flex; justify-content: center;">
                                             <form action="manage-apps.process.php" method="POST">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                                <input type="hidden" name="action" value="create">
+                                                
                                                 <input type="hidden" name="action" value="unlock_app">
                                                 <input type="hidden" name="app_id" value="<?php echo $app['id']; ?>">
                                                 <button type="submit" class="btn-action btn-subjects" title="Desbloquear para Escola">

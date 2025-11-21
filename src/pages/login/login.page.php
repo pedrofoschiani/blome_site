@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../init.php';
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
     <head>
@@ -45,7 +49,7 @@
             <?php endif; ?>
 
             <form method="post" action="login.process.php" id="loginForm">
-                
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <!-- Input E-mail -->
                 <div class="form-group">
                     <label class="form-label" for="email">Endereço de e-mail</label>

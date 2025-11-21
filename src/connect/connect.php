@@ -1,6 +1,24 @@
 <?php
-$supabaseUrl = "https://ffcrtnubzhtyqnzfyfee.supabase.co";
-$supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmY3J0bnViemh0eXFuemZ5ZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxMjcyMDUsImV4cCI6MjA2OTcwMzIwNX0.SIG-uUW03FDFxDfc5V4YOGhNx4QI9zfj8HFdjEgrmYg";
+$configFile = __DIR__ . '/../config.php';
+
+if (!file_exists($configFile)) {
+    // Se o arquivo não existir, mata o processo com um aviso claro
+    die("Erro Crítico: O arquivo de configuração 'src/config.php' não foi encontrado. <br> Renomeie o 'src/config.example.php' e adicione suas chaves.");
+}
+
+$config = require($configFile);
+
+if (!is_array($config)) {
+    die("Erro Crítico: O arquivo 'src/config.php' existe mas não retornou um array. Verifique se ele começa com 'return [ ... ]'.");
+}
+
+$supabaseUrl = $config['SUPABASE_URL'];
+$supabaseKey = $config['SUPABASE_KEY'];
+$supabaseServiceKey = $config['SUPABASE_SERVICE_KEY'] ?? '';
+
+if (!$supabaseUrl || !$supabaseKey) {
+    die("Erro de Configuração: As chaves SUPABASE_URL ou SUPABASE_KEY estão vazias no arquivo config.php.");
+}
 
 $isLocal = in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1']);
 
@@ -143,8 +161,6 @@ function supabaseStorageRequest(
     }
     return json_decode($response, true);
 }
-
-$supabaseServiceKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmY3J0bnViemh0eXFuemZ5ZmVlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDEyNzIwNSwiZXhwIjoyMDY5NzAzMjA1fQ.9DsR5EcxXGp_u-2OmamOInFPiZzJbGXaDgyU5g2DPTY";
 
 function supabaseAdminAuthRequest($endpoint, $method = 'GET', $data = null) {
     global $supabaseUrl, $supabaseServiceKey, $isLocal;

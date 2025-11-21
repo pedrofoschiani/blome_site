@@ -55,7 +55,7 @@
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
-        <link rel="stylesheet" href="../admin-layout.css">
+        <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
@@ -128,6 +128,9 @@
                 </div>
                 
                 <form action="manage-calendary.process.php" method="POST" id="scheduleForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+
                     <input type="hidden" name="action" id="formAction" value="create">
                     <input type="hidden" name="class_id" value="<?php echo $selectedClassId; ?>">
                     <input type="hidden" name="schedule_id" id="scheduleId">
@@ -170,6 +173,9 @@
                 </form>
                 
                 <form id="deleteForm" action="manage-calendary.process.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+                    
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="schedule_id" id="deleteId">
                     <input type="hidden" name="class_id" value="<?php echo $selectedClassId; ?>">

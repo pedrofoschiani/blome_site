@@ -1,168 +1,128 @@
 <?php
 session_start();
-require_once(__DIR__ . '/../../../connect/connect.php');
+require_once __DIR__ . '/../../../init.php'; 
+require_once __DIR__ . '/../../../Services/StudentService.php'; 
 
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    die("Acesso negado. Você não é admin.");
+// --- SEGURANÇA ---
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Erro de segurança: Token inválido.");
 }
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    die("Acesso negado.");
+}
+
+use Blome\Services\StudentService;
+
+$studentService = new StudentService($client);
 
 $action = $_POST['action'] ?? '';
+$token = $_SESSION['access_token'];
+$adminId = $_SESSION['user_id'];
 
-// Função auxiliar robusta para pegar o ID da instituição
-function getAdminInstitutionId($supabaseUrl, $supabaseServiceKey, $adminId) {
-    // Tenta as 3 variações comuns de nome de coluna que vimos nos seus prints
-    $endpoints = [
-        "admins_info?select=institutions_id&id=eq.$adminId", // Padrão 1
-        "admins_info?select=institution_id&id=eq.$adminId",  // Padrão 2
-        "admins_info?select=institutions&id=eq.$adminId"     // Padrão 3 (visto na tabela students)
-    ];
-
-    foreach ($endpoints as $ep) {
-        $data = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, $ep);
-        if (!empty($data) && !isset($data['error']) && isset($data[0])) {
-            // Retorna o primeiro valor que não seja nulo
-            foreach ($data[0] as $key => $val) {
-                if ($val) return $val;
-            }
-        }
-    }
-    return null;
+// --- CORREÇÃO AQUI ---
+function isSupabaseError($response) {
+    // 1. Se a resposta for nula, significa HTTP 201/204 (Sucesso sem corpo)
+    if ($response === null) return false; 
+    
+    // 2. Verifica erros padrões do Supabase
+    if (isset($response['error'])) return true;
+    
+    // 3. Verifica mensagens de erro sem ID (ex: violação de constraint)
+    if (isset($response['message']) && !isset($response['id']) && !isset($response[0])) return true;
+    
+    // 4. Verifica códigos SQL de erro (que não começam com 2)
+    if (isset($response['code']) && is_string($response['code']) && strpos($response['code'], '2') !== 0) return true;
+    
+    return false;
 }
 
-// --- ALUNO: CRIAR ---
-if ($action === 'create') {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+try {
+    // ============================================================
+    // AÇÕES DE ALUNOS
+    // ============================================================
 
-    $adminId = $_SESSION['user_id'];
-    $institutionId = getAdminInstitutionId($supabaseUrl, $supabaseServiceKey, $adminId);
+    if ($action === 'create') {
+        $result = $studentService->createStudent(
+            $_POST['name'], 
+            $_POST['email'], 
+            $_POST['password'], 
+            $adminId, 
+            $token
+        );
 
-    if (!$institutionId) {
-        die("Erro Crítico: Não foi possível encontrar a instituição do Admin. Verifique a tabela admins_info.");
-    }
-
-    // Cria no Auth
-    $authResponse = supabaseAdminAuthRequest("users", "POST", [
-        "email" => $email,
-        "password" => $password,
-        "email_confirm" => true
-    ]);
-
-    if (isset($authResponse['error']) || !isset($authResponse['id'])) {
-        die("Erro ao criar no Auth: " . json_encode($authResponse));
-    }
-
-    $newUserId = $authResponse['id'];
-
-    // Insere na tabela STUDENTS
-    // NOTA: Usando 'institutions' baseado no seu print da tabela students
-    $insertData = [
-        'id' => $newUserId,
-        'full_name' => $name,
-        'institutions' => $institutionId, 
-        'avatar_url' => 'https://placehold.co/150'
-    ];
-
-    $insertResponse = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "students", "POST", $insertData);
-
-    if (isset($insertResponse['error'])) {
-        supabaseAdminAuthRequest("users/$newUserId", "DELETE");
-        die("Erro ao salvar na tabela students: " . json_encode($insertResponse));
-    }
-
-    header("Location: admins-students.page.php?success=created");
-    exit;
-
-// --- ALUNO: DELETAR ---
-} elseif ($action === 'delete') {
-    $userId = $_POST['user_id'];
-
-    $tableDeleteResponse = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "students?id=eq.$userId", "DELETE");
-
-    if (isset($tableDeleteResponse['error'])) {
-        header("Location: admins-students.page.php?error=delete_failed");
-        exit;
-    }
-
-    supabaseAdminAuthRequest("users/$userId", "DELETE");
-    header("Location: admins-students.page.php?success=deleted");
-    exit;
-
-// --- SALA: CRIAR ---
-} elseif ($action === 'create_class') {
-    $className = $_POST['class_name'];
-    
-    if (empty($className)) {
-        header("Location: admins-students.page.php?error=empty_name");
-        exit;
-    }
-
-    $adminId = $_SESSION['user_id'];
-    $institutionId = getAdminInstitutionId($supabaseUrl, $supabaseServiceKey, $adminId);
-
-    if ($institutionId) {
-        // NOTA: Usando 'institution_id' baseado no seu print da tabela classes
-        $insertData = [
-            'class_name' => $className,
-            'institution_id' => $institutionId
-        ];
-        
-        $response = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "classes", "POST", $insertData);
-
-        if (isset($response['error'])) {
-            $errorMsg = urlencode($response['error']['message'] ?? 'unknown');
-            header("Location: admins-students.page.php?error=class_create_failed&msg=$errorMsg");
+        if (isset($result['success'])) {
+            header("Location: admins-students.page.php?success=created");
         } else {
-            header("Location: admins-students.page.php?success=class_created");
+            $msg = $result['msg'] ?? 'Erro desconhecido';
+            header("Location: admins-students.page.php?error=" . ($result['error'] ?? 'create_failed') . "&msg=" . urlencode($msg));
         }
+
+    } elseif ($action === 'delete') {
+        $success = $studentService->deleteStudent($_POST['user_id'], $token);
+        
+        if ($success) header("Location: admins-students.page.php?success=deleted");
+        else header("Location: admins-students.page.php?error=delete_failed");
+
+    } elseif ($action === 'update_student_class') {
+        $classId = (!empty($_POST['class_id']) && $_POST['class_id'] !== 'none') ? $_POST['class_id'] : null;
+        $success = $studentService->changeClass($_POST['student_id'], $classId, $token);
+
+        if ($success) header("Location: admins-students.page.php?success=class_updated");
+        else header("Location: admins-students.page.php?error=update_failed");
+
+    // ============================================================
+    // AÇÕES DE SALAS
+    // ============================================================
+
+    } elseif ($action === 'create_class') {
+        $className = $_POST['class_name'] ?? '';
+        
+        if (empty($className)) {
+            header("Location: admins-students.page.php?error=empty_name");
+            exit;
+        }
+
+        $institutionId = $studentService->getInstitutionId($adminId, $token);
+
+        if ($institutionId) {
+            $data = [
+                'class_name' => $className,
+                'institution_id' => $institutionId
+            ];
+            
+            // Usa Service Key para garantir permissão
+            $res = \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "classes", "POST", $data, null);
+
+            if (isSupabaseError($res)) {
+                header("Location: admins-students.page.php?error=class_create_failed");
+            } else {
+                header("Location: admins-students.page.php?success=class_created");
+            }
+        } else {
+            header("Location: admins-students.page.php?error=institution_not_found");
+        }
+
+    } elseif ($action === 'delete_class') {
+        $classId = $_POST['class_id'];
+
+        // Desvincula alunos
+        \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "students?class_id=eq.$classId", "PATCH", ['class_id' => null], null);
+
+        // Apaga sala
+        $res = \supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "classes?id=eq.$classId", "DELETE", null, null);
+
+        if (isSupabaseError($res)) {
+            header("Location: admins-students.page.php?error=class_delete_failed");
+        } else {
+            header("Location: admins-students.page.php?success=class_deleted");
+        }
+
     } else {
-        header("Location: admins-students.page.php?error=admin_institution_not_found");
+        header("Location: admins-students.page.php");
     }
-    exit;
-
-// --- SALA: DELETAR ---
-} elseif ($action === 'delete_class') {
-    $classId = $_POST['class_id'];
-
-    // Desvincula alunos
-    supabaseRestRequest(
-        $supabaseUrl, 
-        $supabaseServiceKey, 
-        "students?class_id=eq.$classId", 
-        "PATCH", 
-        ['class_id' => null]
-    );
-
-    $response = supabaseRestRequest($supabaseUrl, $supabaseServiceKey, "classes?id=eq.$classId", "DELETE");
-
-    if (isset($response['error'])) {
-        header("Location: admins-students.page.php?error=class_delete_failed");
-    } else {
-        header("Location: admins-students.page.php?success=class_deleted");
-    }
-    exit;
-
-// --- ALUNO: MUDAR SALA ---
-} elseif ($action === 'update_student_class') {
-    $studentId = $_POST['student_id'];
-    $classId = (!empty($_POST['class_id']) && $_POST['class_id'] !== 'none') ? $_POST['class_id'] : null;
-
-    $data = ['class_id' => $classId];
     
-    $response = supabaseRestRequest(
-        $supabaseUrl, 
-        $supabaseServiceKey, 
-        "students?id=eq.$studentId", 
-        "PATCH", 
-        $data
-    );
-
-    if (isset($response['error'])) {
-        header("Location: admins-students.page.php?error=update_failed");
-    } else {
-        header("Location: admins-students.page.php?success=class_updated");
-    }
-    exit;
+} catch (Exception $e) {
+    header("Location: admins-students.page.php?error=exception&msg=" . urlencode($e->getMessage()));
 }
+exit;
 ?>

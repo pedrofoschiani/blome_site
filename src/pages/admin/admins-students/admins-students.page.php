@@ -28,7 +28,7 @@
         
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
-        <link rel="stylesheet" href="../admin-layout.css">
+        <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,9 @@
                     <div class="card-form">
                         <h3>Adicionar Novo Aluno</h3>
                         <form action="manage-students.process.php" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="action" value="create">
+
                             <input type="hidden" name="action" value="create">
                             <div class="form-row">
                                 <div class="input-group">
@@ -98,6 +101,9 @@
                     <div class="card-form">
                         <h3>Adicionar Sala de Aula</h3>
                         <form action="manage-students.process.php" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="action" value="create">
+
                             <input type="hidden" name="action" value="create_class">
                             
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
@@ -134,6 +140,9 @@
                                     </td>
                                     <td style="display: flex; justify-content: center; align-items: center;">
                                         <form action="manage-students.process.php" method="POST" onsubmit="return confirm('Deseja excluir esta sala? Os alunos vinculados ficarão sem sala.');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                            <input type="hidden" name="action" value="create">
+
                                             <input type="hidden" name="action" value="delete_class">
                                             <input type="hidden" name="class_id" value="<?php echo $cls['id']; ?>">
                                             <button type="submit" class="btn-action btn-delete" title="Excluir Sala">
@@ -234,6 +243,9 @@
                 </div>
                 
                 <form action="manage-students.process.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action" value="create">
+                    
                     <input type="hidden" name="action" value="update_student_class">
                     <input type="hidden" name="student_id" id="modalStudentId">
                     

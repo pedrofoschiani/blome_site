@@ -3,6 +3,20 @@ session_start();
 
 include('../../connect/connect.php');
 
+require_once __DIR__ . '/../../init.php';
+
+if (!isset($_POST['csrf_token'])) {
+    die("Erro de segurança: Formulário inválido (Token ausente).");
+}
+
+if (!isset($_SESSION['csrf_token'])) {
+    die("Sessão expirada. Por favor, atualize a página de login e tente novamente.");
+}
+
+if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Erro de segurança: Token inválido. Atualize a página.");
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
