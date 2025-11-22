@@ -38,7 +38,7 @@
                     </a>
                 </li>
                 <li class="nav-link">
-                    <a href="../../admin/admins-perfil/admin-perfil.page.php"> <i class='bx bx-cog icon'></i>
+                    <a href="../../admin/admins-perfil/admin-perfil.page.php"> <i class='bx bx-user-circle icon'></i>
                         <span class="text nav-text">Meu Perfil</span>
                     </a>
                 </li>

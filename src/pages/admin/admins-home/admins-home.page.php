@@ -1,21 +1,24 @@
 <?php
     require_once '../adminSection.php';
 
-    // 1. Buscar Contagens (Simples e Direto)
-    // Trazemos apenas o ID para contar no PHP, economizando dados.
-    
-    // Total Professores
     $profs = \supabaseRestRequest($supabaseUrl, $supabaseKey, "professors_info?select=id", "GET", null, $_SESSION['access_token']);
     $totalProfs = (!empty($profs) && !isset($profs['error'])) ? count($profs) : 0;
 
-    // Total Alunos
     $studs = \supabaseRestRequest($supabaseUrl, $supabaseKey, "students?select=id", "GET", null, $_SESSION['access_token']);
     $totalStuds = (!empty($studs) && !isset($studs['error'])) ? count($studs) : 0;
 
-    // Total Apps Liberados
-    // Filtramos apenas os desse admin para mostrar o impacto dele
+    $studsNoClass = \supabaseRestRequest($supabaseUrl, $supabaseKey, "students?select=id&class_id=is.null", "GET", null, $_SESSION['access_token']);
+    $countNoClass = (!empty($studsNoClass) && !isset($studsNoClass['error'])) ? count($studsNoClass) : 0;
+
     $apps = \supabaseRestRequest($supabaseUrl, $supabaseKey, "admins_apps?select=id&admin_id=eq." . $_SESSION['user_id'], "GET", null, $_SESSION['access_token']);
     $totalApps = (!empty($apps) && !isset($apps['error'])) ? count($apps) : 0;
+
+    date_default_timezone_set('America/Sao_Paulo');
+    $dayOfWeek = date('w');
+    
+    $classesToday = \supabaseRestRequest($supabaseUrl, $supabaseKey, "professors_schedule?select=id&day_of_week=eq.$dayOfWeek", "GET", null, $_SESSION['access_token']);
+    $totalClassesToday = (!empty($classesToday) && !isset($classesToday['error'])) ? count($classesToday) : 0;
+
 ?>
 
 <!DOCTYPE html>
@@ -23,67 +26,20 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>BLOME | Administradores</title>
+        <title>BLOME | Painel Administrativo</title>
+        
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
         <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
+        
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
         
-        <!-- Estilo Inline Específico para Dashboard Cards -->
-        <style>
-            .dashboard-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 25px;
-                padding: 20px;
-                margin-top: 20px;
-                max-width: 1200px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .dash-card {
-                background: #fff;
-                border-radius: 30px;
-                padding: 30px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-                display: flex;
-                align-items: center;
-                gap: 20px;
-                transition: transform 0.3s ease;
-            }
-            .dash-card:hover { transform: translateY(-5px); }
-            
-            .dash-icon {
-                width: 70px; height: 70px;
-                border-radius: 20px;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 32px;
-            }
-            /* Cores dos Icones */
-            .icon-profs { background: #eef2ff; color: var(--primary-color); }
-            .icon-studs { background: #e6f7ff; color: var(--accent-color); }
-            .icon-apps  { background: #fff0f6; color: #eb2f96; }
-
-            .dash-info h3 { font-size: 2.5rem; font-weight: 800; color: var(--text-color-dark); margin: 0; line-height: 1; }
-            .dash-info p { color: #888; font-size: 1rem; margin-top: 5px; font-weight: 600; }
-
-            .welcome-banner {
-                background: var(--gradient);
-                color: #fff;
-                padding: 40px;
-                border-radius: 35px;
-                margin: 100px 20px 20px 20px; /* Margem superior para header */
-                max-width: 1200px;
-                margin-left: auto; margin-right: auto;
-                box-shadow: 0 15px 40px rgba(91, 52, 235, 0.3);
-            }
-            .welcome-banner h1 { font-size: 2rem; margin-bottom: 10px; }
-            .welcome-banner p { font-size: 1.1rem; opacity: 0.9; }
-        </style>
-    </head>
+        <link rel="stylesheet" href="admins-home.page.css">
+        <link rel="stylesheet" href="../admins-professors/admins-professors.page.css"> </head>
     <body>
     
         <?php include '../../../components/sidebars/admin-sidebar.component.php'; ?>
@@ -92,46 +48,112 @@
         <section class="home">
             <?php include '../../../components/header/header.component.php'; ?>
 
-            <!-- Banner de Boas Vindas -->
-            <div class="welcome-banner">
-                <h1>Olá, <?php echo htmlspecialchars($userName); ?>!</h1>
-                <p>Bem-vindo ao painel administrativo. Aqui está o resumo da sua instituição hoje.</p>
+            <div class="container-dashboard">
+
+                <div class="welcome-banner">
+                    <h1>Olá, <?php echo htmlspecialchars($userName); ?>!</h1>
+                    <p>Bem-vindo ao centro de controle da BLOME. Aqui está o resumo das atividades da sua instituição para hoje.</p>
+                </div>
+
+                <div class="section-title">Resumo da Instituição</div>
+                <div class="kpi-grid">
+                    
+                    <div class="kpi-card" onclick="window.location.href='../admins-professors/admins-professors.page.php?filter=none'" style="cursor: pointer;">
+                        <div class="kpi-icon icon-profs"><i class='bx bx-chalkboard'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $totalProfs; ?></h3>
+                            <p>Professores</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="window.location.href='../admins-students/admins-students.page.php?filter=none'" style="cursor: pointer;">
+                        <div class="kpi-icon icon-studs"><i class='bx bx-user'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $totalStuds; ?></h3>
+                            <p>Total Alunos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card" onclick="window.location.href='../admins-students/admins-students.page.php?filter=none'" style="cursor: pointer;">
+                        <div class="kpi-icon icon-alert"><i class='bx bx-error-circle'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $countNoClass; ?></h3>
+                            <p>Alunos sem Sala</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="window.location.href='../admins-apps/admins-apps.page.php?filter=none'" style="cursor: pointer;">
+                        <div class="kpi-icon icon-apps"><i class='bx bx-layer'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $totalApps; ?></h3>
+                            <p>Apps Liberados</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="window.location.href='../admins-calendary/admins-calendary.page.php?filter=none'" style="cursor: pointer;">
+                        <div class="kpi-icon" style="background: #f6ffed; color: #52c41a;"><i class='bx bx-calendar-check'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $totalClassesToday; ?></h3>
+                            <p>Aulas Hoje</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="section-title">Acesso Rápido</div>
+                <div class="shortcuts-grid">
+                    
+                    <a href="../admins-professors/admins-professors.page.php" class="shortcut-card">
+                        <i class='bx bx-user-plus'></i>
+                        <span>Cadastrar Professor</span>
+                    </a>
+
+                    <a href="../admins-students/admins-students.page.php" class="shortcut-card">
+                        <i class='bx bx-group'></i>
+                        <span>Gerenciar Alunos</span>
+                    </a>
+
+                    <a href="../admins-apps/admins-apps.page.php" class="shortcut-card">
+                        <i class='bx bx-lock-open-alt'></i>
+                        <span>Desbloquear App</span>
+                    </a>
+
+                    <a href="../admins-calendary/admins-calendary.page.php" class="shortcut-card">
+                        <i class='bx bx-calendar-edit'></i>
+                        <span>Editar Grade</span>
+                    </a>
+
+                </div>
+
             </div>
-
-            <!-- Cards de Métricas -->
-            <div class="dashboard-grid">
-                
-                <!-- Card Professores -->
-                <div class="dash-card">
-                    <div class="dash-icon icon-profs"><i class='bx bx-chalkboard'></i></div>
-                    <div class="dash-info">
-                        <h3><?php echo $totalProfs; ?></h3>
-                        <p>Professores</p>
-                    </div>
-                </div>
-
-                <!-- Card Alunos -->
-                <div class="dash-card">
-                    <div class="dash-icon icon-studs"><i class='bx bx-user'></i></div>
-                    <div class="dash-info">
-                        <h3><?php echo $totalStuds; ?></h3>
-                        <p>Alunos Ativos</p>
-                    </div>
-                </div>
-
-                <!-- Card Apps -->
-                <div class="dash-card">
-                    <div class="dash-icon icon-apps"><i class='bx bx-layer'></i></div>
-                    <div class="dash-info">
-                        <h3><?php echo $totalApps; ?></h3>
-                        <p>Apps Liberados</p>
-                    </div>
-                </div>
-
+            
+            <div class="floating-policy-btn" onclick="openPolicyModal()">
+                <i class='bx bx-shield-quarter'></i>
             </div>
 
         </section>
 
+        <?php include '../../../components/privacidade/privacidade.component.php' ?>
+
         <script src="../../../js/sidebar-animation.js"></script>
+        
+        <script>
+            const policyModal = document.getElementById('policyModal');
+
+            function openPolicyModal() {
+                policyModal.classList.add('open');
+                policyModal.style.display = 'flex'; // Garante flex
+            }
+
+            function closePolicyModal() {
+                policyModal.classList.remove('open');
+                setTimeout(() => { policyModal.style.display = 'none'; }, 300);
+            }
+
+            // Fecha ao clicar fora
+            policyModal.addEventListener('click', (e) => {
+                if (e.target === policyModal) closePolicyModal();
+            });
+        </script>
     </body>
 </html>

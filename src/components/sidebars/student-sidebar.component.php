@@ -23,7 +23,7 @@
                     </a>
                 </li>
                 <li class="nav-link">
-                    <a href="../../students/students-perfil/students-perfil.page.php"> <i class='bx bx-cog icon'></i>
+                    <a href="../../students/students-perfil/students-perfil.page.php"> <i class='bx bx-user-circle icon'></i>
                         <span class="text nav-text">Meu Perfil</span>
                     </a>
                 </li>

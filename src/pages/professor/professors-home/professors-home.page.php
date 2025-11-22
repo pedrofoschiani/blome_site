@@ -3,18 +3,42 @@
 
     $profId = $_SESSION['user_id'];
     
-    // Busca a PRÓXIMA aula de hoje
     date_default_timezone_set('America/Sao_Paulo');
     $now = date('H:i:00');
-    $day = date('w');
+    $dayOfWeek = date('w'); // 0 (dom) a 6 (sab)
 
-    // Query: Aula do professor, hoje, que começa depois de agora, ordena pela mais cedo, pega 1.
-    $query = "professors_schedule?professor_id=eq.$profId&day_of_week=eq.$day&start_time=gt.$now&order=start_time.asc&limit=1&select=*,classes(class_name),subjects(name)";
+    // ------------------------------------------------------------
+    // 1. Lógica: Próxima Aula
+    // ------------------------------------------------------------
+    $queryNext = "professors_schedule?professor_id=eq.$profId&day_of_week=eq.$dayOfWeek&start_time=gt.$now&order=start_time.asc&limit=1&select=*,classes(class_name),subjects(name)";
+    $nextClassData = \supabaseRestRequest($supabaseUrl, $supabaseKey, $queryNext, "GET", null, $_SESSION['access_token']);
     
-    $nextClass = \supabaseRestRequest($supabaseUrl, $supabaseKey, $query, "GET", null, $_SESSION['access_token']);
+    $hasNext = (!empty($nextClassData) && !isset($nextClassData['error']) && count($nextClassData) > 0);
+    $nextClass = $hasNext ? $nextClassData[0] : null;
+
+    // ------------------------------------------------------------
+    // 2. Lógica: Total de Aulas Hoje
+    // ------------------------------------------------------------
+    $queryToday = "professors_schedule?professor_id=eq.$profId&day_of_week=eq.$dayOfWeek&select=id";
+    $todayClasses = \supabaseRestRequest($supabaseUrl, $supabaseKey, $queryToday, "GET", null, $_SESSION['access_token']);
+    $countToday = (!empty($todayClasses) && !isset($todayClasses['error'])) ? count($todayClasses) : 0;
+
+    // ------------------------------------------------------------
+    // 3. Lógica: Total de Turmas (Distintas) na Semana
+    // ------------------------------------------------------------
+    // É uma métrica interessante para mostrar o alcance do professor
+    // Como o Supabase REST puro não tem "DISTINCT" simples no count sem RPC, vamos pegar todas e contar no PHP (se não forem muitas)
+    $queryWeek = "professors_schedule?professor_id=eq.$profId&select=class_id";
+    $weekClasses = \supabaseRestRequest($supabaseUrl, $supabaseKey, $queryWeek, "GET", null, $_SESSION['access_token']);
     
-    $hasClass = (!empty($nextClass) && !isset($nextClass['error']) && count($nextClass) > 0);
-    $aula = $hasClass ? $nextClass[0] : null;
+    $uniqueClasses = [];
+    if (!empty($weekClasses) && !isset($weekClasses['error'])) {
+        foreach($weekClasses as $wc) {
+            $uniqueClasses[$wc['class_id']] = true;
+        }
+    }
+    $countUniqueClasses = count($uniqueClasses);
+
 ?>
 
 <!DOCTYPE html>
@@ -22,76 +46,117 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>BLOME | Professores</title>
+        <title>BLOME | Painel do Professor</title>
+        
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        
         <link rel="stylesheet" href="../../../style/global.css">
         <link rel="stylesheet" href="../../../style/variable.css">
         <link rel="stylesheet" href="../../../style/dashboard-layout.css">
         <link rel="stylesheet" href="../../../components/header/header.component.css">
+        
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
         
-        <style>
-            .welcome-header { margin: 100px auto 30px; max-width: 800px; padding: 0 20px; }
-            .welcome-header h1 { color: var(--text-color-dark); font-size: 2rem; font-weight: 800; }
-            .welcome-header p { color: #666; font-size: 1.1rem; margin-top: 5px; }
-
-            .next-class-card {
-                background: #fff;
-                border-radius: 35px;
-                padding: 40px;
-                max-width: 800px;
-                margin: 0 auto;
-                box-shadow: 0 15px 40px rgba(0,0,0,0.05);
-                border-left: 10px solid var(--primary-color);
-                display: flex; flex-direction: column; gap: 15px;
-            }
-            .nc-label { text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; color: #999; font-weight: 700; }
-            .nc-title { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); }
-            .nc-info { display: flex; gap: 30px; margin-top: 10px; }
-            .nc-item { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; color: #555; font-weight: 600; }
-            .nc-item i { color: var(--accent-color); font-size: 1.4rem; }
-            
-            .no-class { text-align: center; color: #999; padding: 40px; background: #fff; border-radius: 35px; max-width: 800px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05);}
-        </style>
+        <link rel="stylesheet" href="professors-home.page.css">
+        
+        <link rel="stylesheet" href="../../admin/admins-professors/admins-professors.page.css"> 
     </head>
     <body>
+    
         <?php include '../../../components/sidebars/professor-sidebar.component.php'; ?>
         <i class='bx bx-menu toggle-open'></i>
 
         <section class="home">
             <?php include '../../../components/header/header.component.php'; ?>
 
-            <div class="welcome-header">
-                <h1>Bem-vindo, Professor(a)!</h1>
-                <p>Confira sua próxima atividade programada.</p>
-            </div>
+            <div class="container-dashboard">
 
-            <?php if($hasClass): ?>
-                <div class="next-class-card">
-                    <span class="nc-label">Próxima Aula Hoje</span>
-                    <h2 class="nc-title"><?php echo htmlspecialchars($aula['subjects']['name']); ?></h2>
-                    <div class="nc-info">
-                        <div class="nc-item">
-                            <i class='bx bx-time-five'></i> 
-                            <?php echo substr($aula['start_time'], 0, 5) . ' - ' . substr($aula['end_time'], 0, 5); ?>
-                        </div>
-                        <div class="nc-item">
-                            <i class='bx bx-building'></i> 
-                            <?php echo htmlspecialchars($aula['classes']['class_name']); ?>
+                <div class="welcome-banner">
+                    <h1>Olá, <?php echo htmlspecialchars($userName); ?>!</h1>
+                    <p>Este é o seu painel de controle pedagógico. Acompanhe sua agenda e gerencie suas turmas com facilidade.</p>
+                </div>
+
+                <div class="section-title">Sua Atividade Hoje</div>
+                <div class="kpi-grid">
+                    
+                    <div class="kpi-card next-class <?php echo !$hasNext ? 'no-class-state' : ''; ?>">
+                        <div class="kpi-icon"><i class='bx bx-time-five'></i></div>
+                        <div class="kpi-info">
+                            <?php if ($hasNext): ?>
+                                <p>Próxima Aula</p>
+                                <h3><?php echo substr($nextClass['start_time'], 0, 5); ?> - <?php echo htmlspecialchars($nextClass['classes']['class_name']); ?></h3>
+                                <span class="kpi-sub"><?php echo htmlspecialchars($nextClass['subjects']['name']); ?></span>
+                            <?php else: ?>
+                                <p>Status</p>
+                                <h3>Livre</h3>
+                                <span class="kpi-sub">Nenhuma aula pendente hoje</span>
+                            <?php endif; ?>
                         </div>
                     </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: #f6ffed; color: #52c41a;"><i class='bx bx-calendar-check'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $countToday; ?></h3>
+                            <p>Aulas Totais Hoje</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: #fff7e6; color: #fa8c16;"><i class='bx bx-group'></i></div>
+                        <div class="kpi-info">
+                            <h3><?php echo $countUniqueClasses; ?></h3>
+                            <p>Turmas Atendidas</p>
+                        </div>
+                    </div>
+
                 </div>
-            <?php else: ?>
-                <div class="no-class">
-                    <i class='bx bx-coffee' style="font-size: 4rem; margin-bottom: 15px; display: block; color: #ddd;"></i>
-                    <h3>Tudo livre por hoje!</h3>
-                    <p>Você não tem mais aulas agendadas para o dia de hoje.</p>
-                </div>
-            <?php endif; ?>
+
+                <div class="section-title">Acesso Rápido</div>
+                <div class="shortcuts-grid">
+                    
+                    <a href="../professor-calendary/professor-calendary.page.php" class="shortcut-card">
+                        <i class='bx bx-calendar'></i>
+                        <span>Ver Grade Completa</span>
+                    </a>
+
+                    <a href="../professor-perfil/professor-perfil.page.php" class="shortcut-card">
+                        <i class='bx bx-user-circle'></i>
+                        <span>Meu Perfil</span>
+                    </a>
+
+                    </div>
+
+            </div>
+
+            <div class="floating-policy-btn" onclick="openPolicyModal()">
+                <i class='bx bx-shield-quarter'></i>
+            </div>
 
         </section>
 
+         <?php include '../../../components/privacidade/privacidade.component.php' ?>
+
         <script src="../../../js/sidebar-animation.js"></script>
+        
+        <script>
+            const policyModal = document.getElementById('policyModal');
+
+            function openPolicyModal() {
+                policyModal.classList.add('open');
+                policyModal.style.display = 'flex';
+            }
+
+            function closePolicyModal() {
+                policyModal.classList.remove('open');
+                setTimeout(() => { policyModal.style.display = 'none'; }, 300);
+            }
+
+            // Fecha ao clicar no fundo escuro
+            policyModal.addEventListener('click', (e) => {
+                if (e.target === policyModal) closePolicyModal();
+            });
+        </script>
     </body>
 </html>
