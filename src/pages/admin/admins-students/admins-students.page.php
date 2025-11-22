@@ -76,12 +76,7 @@
                                     <label for="stud_pass">Senha Inicial</label>
                                     <input type="password" id="stud_pass" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
                                     
-                                    <div class="password-requirements reqs-floating" id="stud-pass-reqs">
-                                        <div class="req-item req-length"><i class='bx bx-check'></i> Mínimo 8 caracteres</div>
-                                        <div class="req-item req-upper"><i class='bx bx-check'></i> Uma letra maiúscula</div>
-                                        <div class="req-item req-number"><i class='bx bx-check'></i> Um número</div>
-                                        <div class="req-item req-special"><i class='bx bx-check'></i> Um caractere especial</div>
-                                    </div>
+                                   
                                 </div>
                                 <script src="../../../js/form-validator.js"></script> 
                                 <script>

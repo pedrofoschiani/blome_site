@@ -318,6 +318,7 @@ header {
   color: var(--muted);
   line-height: 1.6;
 }
+
 .demonstration-media {
   flex: 1;
   display: flex;
